@@ -1,5 +1,7 @@
 #include "sniffer.hpp"
 
+#include "parser.hpp"
+
 #include <iostream>
 
 namespace netfalcon {
@@ -9,6 +11,7 @@ Sniffer::Sniffer(std::string interfaceName, int snapLen, int timeoutMs)
       snapLen_(snapLen),
       timeoutMs_(timeoutMs),
       handle_(nullptr),
+      linkType_(-1),
       running_(false) {}
 
 Sniffer::~Sniffer() {
@@ -27,6 +30,8 @@ bool Sniffer::open() {
         std::cerr << "[Sniffer] arayuz acilamadi (" << interfaceName_ << "): " << errbuf << "\n";
         return false;
     }
+
+    linkType_ = pcap_datalink(handle_);
 
     std::cout << "[Sniffer] " << interfaceName_ << " promiscuous modda dinleniyor.\n";
     return true;
@@ -61,10 +66,15 @@ void Sniffer::packetHandler(u_char* userData, const struct pcap_pkthdr* header, 
 }
 
 void Sniffer::handlePacket(const struct pcap_pkthdr* header, const u_char* packet) {
-    // TODO: parser.hpp ile entegre edilecek. Simdilik yakalanan paketin
-    // boyutu basilarak yakalama hattinin calistigi dogrulaniyor.
-    (void)packet;
-    std::cout << "[Sniffer] paket yakalandi: " << header->len << " byte\n";
+    ParsedPacket parsed;
+    if (!parsePacket(packet, header->caplen, linkType_, parsed)) {
+        return;
+    }
+
+    std::string alertMsg;
+    if (portScanDetector_.onPacket(parsed, alertMsg)) {
+        std::cout << alertMsg << "\n";
+    }
 }
 
 }  // namespace netfalcon

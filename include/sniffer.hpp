@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rules.hpp"
+
 #include <pcap.h>
 
 #include <atomic>
@@ -33,7 +35,9 @@ private:
     int snapLen_;
     int timeoutMs_;
     pcap_t* handle_;
+    int linkType_;
     std::atomic<bool> running_;
+    PortScanDetector portScanDetector_;
 };
 
 }  // namespace netfalcon

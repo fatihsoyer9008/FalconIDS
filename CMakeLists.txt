@@ -25,6 +25,8 @@ endif()
 
 add_library(netfalcon_core
     src/sniffer.cpp
+    src/parser.cpp
+    src/rules.cpp
 )
 target_include_directories(netfalcon_core PUBLIC include ${PCAP_INCLUDE_DIR})
 target_link_libraries(netfalcon_core PUBLIC ${PCAP_LIBRARY})
