@@ -2,6 +2,24 @@
 
 C++17 ve libpcap ile geliştirilen, performans odaklı bir ağ trafiği analiz (IDS/Sniffer) aracı. Ağ arayüzünü promiscuous modda dinler, geçen paketleri ayrıştırır ve basit anomali kurallarıyla (ör. port taraması) şüpheli trafiği tespit eder.
 
+## Nasıl çalışır
+
+```
+  Ağ Arayüzü (promiscuous)
+          │  libpcap
+          ▼
+   ┌─────────────┐      ┌─────────────┐      ┌───────────────────┐
+   │   Sniffer   │ ───▶ │   Parser    │ ───▶ │  Rules / Detector  │ ───▶ [ALERT]
+   │ sniffer.hpp │      │ parser.hpp  │      │    rules.hpp       │
+   └─────────────┘      └─────────────┘      └───────────────────┘
+   ham paketi yakalar    Ethernet/IPv4/       örn. PortScanDetector:
+   (sonsuz döngü)        TCP/UDP/ICMP         zaman penceresinde
+                         başlıklarını         çok sayıda farklı porta
+                         ayrıştırır           erişimi yakalar
+```
+
+Her paket bu üç aşamadan sırayla geçer: **yakala → ayrıştır → kurala karşı değerlendir**. Bir kural tetiklenirse konsola insan-okunabilir bir `[ALERT]` satırı basılır.
+
 ## Durum
 
 Proje erken (iskelet) aşamada. Şu an çalışan kısımlar:
