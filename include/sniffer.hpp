@@ -9,10 +9,19 @@
 
 namespace netfalcon {
 
+// Forward declaration — tam tanimlama icin ilgili header include edilmeli.
+class ThreatIntelChecker;
+class Notifier;
+class FirewallBlocker;
+
 // Belirtilen ag arayuzunu promiscuous modda acip paketleri yakalayan cekirdek sinif.
 class Sniffer {
 public:
-    explicit Sniffer(std::string interfaceName, int snapLen = 65535, int timeoutMs = 1000);
+    // threatIntel, notifier ve firewall nullptr olabilir; bu durumda ilgili modul devre disi kalir.
+    explicit Sniffer(std::string interfaceName, int snapLen = 65535, int timeoutMs = 1000,
+                     ThreatIntelChecker* threatIntel = nullptr,
+                     Notifier* notifier = nullptr,
+                     FirewallBlocker* firewall = nullptr);
     ~Sniffer();
 
     Sniffer(const Sniffer&) = delete;
@@ -38,6 +47,9 @@ private:
     int linkType_;
     std::atomic<bool> running_;
     PortScanDetector portScanDetector_;
+    ThreatIntelChecker* threatIntel_;  // sahiplik almaz (non-owning pointer)
+    Notifier* notifier_;               // sahiplik almaz (non-owning pointer)
+    FirewallBlocker* firewall_;        // sahiplik almaz (non-owning pointer)
 };
 
 }  // namespace netfalcon
