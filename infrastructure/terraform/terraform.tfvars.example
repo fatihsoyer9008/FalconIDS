@@ -1,0 +1,26 @@
+# =============================================================================
+# FalconIDS — Terraform Değişken Şablonu
+# =============================================================================
+# Bu dosyayı "terraform.tfvars" olarak kopyalayıp kendi değerlerinizi girin.
+#
+#   cp terraform.tfvars.example terraform.tfvars
+#   vim terraform.tfvars
+#
+# terraform.tfvars dosyası .gitignore'dadır — gizli bilgileriniz
+# yanlışlıkla versiyon kontrolüne gitmez.
+# =============================================================================
+
+# AWS bölgesi (Free Tier için us-east-1 veya eu-west-1 önerilir)
+aws_region = "eu-west-1"
+
+# SSH erişimi için mevcut AWS Key Pair adınız
+# (AWS Console → EC2 → Key Pairs bölümünden oluşturabilirsiniz)
+key_name = "my-falconids-key"
+
+# SSH erişimine izin verilecek IP adresiniz (CIDR formatında)
+# Kendi IP'nizi öğrenmek için: curl -s https://checkip.amazonaws.com
+# Sonuna /32 eklemeyi unutmayın (tek IP)
+my_ip = "203.0.113.42/32"
+
+# Proje adı (tüm kaynaklara etiket olarak eklenir)
+project_name = "FalconIDS"
