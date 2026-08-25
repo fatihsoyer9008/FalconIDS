@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(NetFalcon VERSION 0.1.0 LANGUAGES CXX)
+project(NetFalcon VERSION 0.2.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -23,13 +23,34 @@ if(NOT PCAP_INCLUDE_DIR OR NOT PCAP_LIBRARY)
         "  Windows: Npcap SDK indirip PCAP_ROOT ortam degiskenini kurulum yoluna ayarlayin.")
 endif()
 
+# --- libcurl ---------------------------------------------------------------
+# Threat Intelligence modulu (AbuseIPDB API) icin gerekli.
+# Linux: 'sudo apt install libcurl4-openssl-dev'
+find_package(CURL REQUIRED)
+
+# --- Threads ---------------------------------------------------------------
+# Arka plan worker thread icin gerekli.
+find_package(Threads REQUIRED)
+
+# --- Core kutuphane --------------------------------------------------------
 add_library(netfalcon_core
     src/sniffer.cpp
     src/parser.cpp
     src/rules.cpp
+    src/threat_intel.cpp
+    src/notifier.cpp
+    src/firewall.cpp
 )
-target_include_directories(netfalcon_core PUBLIC include ${PCAP_INCLUDE_DIR})
-target_link_libraries(netfalcon_core PUBLIC ${PCAP_LIBRARY})
+target_include_directories(netfalcon_core PUBLIC
+    include
+    ${PCAP_INCLUDE_DIR}
+    third_party        # nlohmann/json.hpp icin
+)
+target_link_libraries(netfalcon_core PUBLIC
+    ${PCAP_LIBRARY}
+    CURL::libcurl
+    Threads::Threads
+)
 
 if(WIN32)
     target_link_libraries(netfalcon_core PUBLIC ws2_32)
@@ -41,5 +62,6 @@ else()
     target_compile_options(netfalcon_core PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+# --- Calistirilabilir dosya ------------------------------------------------
 add_executable(netfalcon src/main.cpp)
 target_link_libraries(netfalcon PRIVATE netfalcon_core)

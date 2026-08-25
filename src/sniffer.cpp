@@ -1,18 +1,26 @@
 #include "sniffer.hpp"
 
+#include "firewall.hpp"
+#include "notifier.hpp"
 #include "parser.hpp"
+#include "threat_intel.hpp"
 
 #include <iostream>
 
 namespace netfalcon {
 
-Sniffer::Sniffer(std::string interfaceName, int snapLen, int timeoutMs)
+Sniffer::Sniffer(std::string interfaceName, int snapLen, int timeoutMs,
+                 ThreatIntelChecker* threatIntel, Notifier* notifier,
+                 FirewallBlocker* firewall)
     : interfaceName_(std::move(interfaceName)),
       snapLen_(snapLen),
       timeoutMs_(timeoutMs),
       handle_(nullptr),
       linkType_(-1),
-      running_(false) {}
+      running_(false),
+      threatIntel_(threatIntel),
+      notifier_(notifier),
+      firewall_(firewall) {}
 
 Sniffer::~Sniffer() {
     if (handle_ != nullptr) {
@@ -71,9 +79,25 @@ void Sniffer::handlePacket(const struct pcap_pkthdr* header, const u_char* packe
         return;
     }
 
+    // Tehdit istihbarati kontrolu (asenkron, non-blocking)
+    if (threatIntel_ != nullptr) {
+        threatIntel_->enqueueCheck(parsed.srcIp);
+        threatIntel_->enqueueCheck(parsed.dstIp);
+    }
+
     std::string alertMsg;
     if (portScanDetector_.onPacket(parsed, alertMsg)) {
         std::cout << alertMsg << "\n";
+
+        // Bildirim gonder (asenkron, non-blocking)
+        if (notifier_ != nullptr) {
+            notifier_->sendAlert(alertMsg, "High");
+        }
+
+        // Saldirgan IP icin strike kaydet (esik asilirsa otomatik engellenir)
+        if (firewall_ != nullptr) {
+            firewall_->recordStrike(parsed.srcIp);
+        }
     }
 }
 

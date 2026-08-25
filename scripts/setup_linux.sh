@@ -12,7 +12,8 @@ apt-get update
 apt-get install -y \
     build-essential \
     cmake \
-    libpcap-dev
+    libpcap-dev \
+    libcurl4-openssl-dev
 
 echo "Bagimliliklar kuruldu. Derlemek icin:"
 echo "  cmake -S . -B build && cmake --build build"
