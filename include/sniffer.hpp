@@ -47,6 +47,7 @@ private:
     int linkType_;
     std::atomic<bool> running_;
     PortScanDetector portScanDetector_;
+    SynFloodDetector synFloodDetector_;
     ThreatIntelChecker* threatIntel_;  // sahiplik almaz (non-owning pointer)
     Notifier* notifier_;               // sahiplik almaz (non-owning pointer)
     FirewallBlocker* firewall_;        // sahiplik almaz (non-owning pointer)
