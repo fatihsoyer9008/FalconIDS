@@ -65,3 +65,7 @@ endif()
 # --- Calistirilabilir dosya ------------------------------------------------
 add_executable(netfalcon src/main.cpp)
 target_link_libraries(netfalcon PRIVATE netfalcon_core)
+
+# --- Testler -----------------------------------------------------------
+enable_testing()
+add_subdirectory(tests)
