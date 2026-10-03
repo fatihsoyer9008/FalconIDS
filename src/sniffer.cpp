@@ -99,6 +99,19 @@ void Sniffer::handlePacket(const struct pcap_pkthdr* header, const u_char* packe
             firewall_->recordStrike(parsed.srcIp);
         }
     }
+
+    std::string synAlertMsg;
+    if (synFloodDetector_.onPacket(parsed, synAlertMsg)) {
+        std::cout << synAlertMsg << "\n";
+
+        if (notifier_ != nullptr) {
+            notifier_->sendAlert(synAlertMsg, "Critical");
+        }
+
+        if (firewall_ != nullptr) {
+            firewall_->recordStrike(parsed.srcIp);
+        }
+    }
 }
 
 }  // namespace netfalcon

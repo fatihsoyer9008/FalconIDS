@@ -6,6 +6,16 @@
 
 namespace netfalcon {
 
+// TCP bayrak (flag) bit degerleri — ParsedPacket::tcpFlags alaniyla birlikte kullanilir.
+namespace TcpFlag {
+constexpr uint8_t kFin = 0x01;
+constexpr uint8_t kSyn = 0x02;
+constexpr uint8_t kRst = 0x04;
+constexpr uint8_t kPsh = 0x08;
+constexpr uint8_t kAck = 0x10;
+constexpr uint8_t kUrg = 0x20;
+}  // namespace TcpFlag
+
 enum class Protocol { TCP, UDP, ICMP, OTHER };
 
 struct ParsedPacket {
